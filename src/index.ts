@@ -1,5 +1,5 @@
 import { User } from './models/User';
 
-const user = new User({ id: 1 });
+const user = new User({ name: 'Lichen', age: 79 });
 
-user.set({ name: 'AAAAA', age: 6776 });
+console.log(user.get('name'));
