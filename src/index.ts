@@ -1,8 +1,8 @@
 import { User } from './models/User';
 
-const user = new User({ name: 'Tommy Lee', age: 62 });
+const user = User.buildUser({ id: 1 });
 
-user.on('save', () => console.log('User saved'));
+user.on('change', () => console.log(user));
 user.on('error', () => console.log('User could not be saved.'));
 
-user.save();
+user.fetch();
