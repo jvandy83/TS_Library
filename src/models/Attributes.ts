@@ -1,7 +1,7 @@
-import { UserProps } from './User';
-
 export class Attributes<T> {
-  constructor(private data: T) {
+  private data: T;
+  constructor(data: T) {
+    this.data = data;
     this.get = this.get.bind(this);
   }
   get<K extends keyof T>(key: K): T[K] {
@@ -10,5 +10,9 @@ export class Attributes<T> {
 
   set(update: T): void {
     Object.assign(this.data, update);
+  }
+
+  getAll(): T {
+    return this.data;
   }
 }

@@ -11,9 +11,9 @@ export class Sync<T extends HasId> {
     return axios.get(`${this.rootUrl}/${id}`);
   }
 
-  save(data: T): void {
+  save(data: T): AxiosPromise {
     const { id } = data;
-    id
+    return id
       ? axios.put(`${this.rootUrl}/users/${id}`, data)
       : axios.post(this.rootUrl, data);
   }
