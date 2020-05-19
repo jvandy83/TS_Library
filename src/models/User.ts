@@ -1,7 +1,8 @@
-import { AxiosResponse } from 'axios';
-import { Eventing } from './Eventing';
-import { Sync } from './Sync';
+import { Model } from './Model';
 import { Attributes } from './Attributes';
+import { Eventing } from './Eventing';
+import { ApiSync } from './ApiSync';
+import { Collection } from './Collection';
 
 const URI = 'http://localhost:3000/users';
 
@@ -11,54 +12,26 @@ export interface UserProps {
   name?: string;
 }
 
-export class User {
-  public events: Eventing = new Eventing();
-  public sync: Sync<UserProps> = new Sync<UserProps>(URI);
-  public attributes: Attributes<UserProps>;
-
-  constructor(attrs: UserProps) {
-    this.attributes = new Attributes<UserProps>(attrs);
+export class User extends Model<UserProps> {
+  static buildUser(attrs: UserProps): User {
+    return new User(
+      new Attributes<UserProps>(attrs),
+      new Eventing(),
+      new ApiSync<UserProps>(URI)
+    );
+  }
+  static buildUserCollection(): Collection<User, UserProps> {
+    return new Collection<User, UserProps>(URI, (json: UserProps) => {
+      return User.buildUser(json);
+    });
   }
 
-  get on() {
-    return this.events.on;
+  setRandomAge(): void {
+    const age = Math.round(Math.random() * 100);
+    this.set({ age });
   }
 
-  get trigger() {
-    return this.events.trigger;
-  }
-
-  get get() {
-    return this.attributes.get;
-  }
-
-  set(update: UserProps): void {
-    this.attributes.set(update);
-    this.events.trigger('change');
-  }
-
-  fetch(): void {
-    const id = this.get('id');
-    if (typeof id !== 'number') {
-      throw new Error('Type of id must be a number');
-    }
-    this.sync
-      .fetch(id)
-      .then((res: AxiosResponse): void => {
-        this.set(res.data);
-      })
-      .catch((err) => console.log(err));
-  }
-
-  save(): void {
-    const { name, age } = this.attributes.getAll();
-    this.sync
-      .save({ name, age })
-      .then((response: AxiosResponse) => {
-        this.events.trigger('save');
-      })
-      .catch((err) => {
-        this.events.trigger('error');
-      });
+  setName(name: string): void {
+    this.set({ name });
   }
 }
