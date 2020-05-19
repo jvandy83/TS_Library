@@ -1,8 +1,11 @@
+import { UserForm } from './views/UserForm';
 import { User } from './models/User';
 
-const user = User.buildUser({ id: 1 });
+const userForm = new UserForm(
+  document.getElementById('root'),
+  User.buildUser({ name: 'NAME', age: 0 })
+);
 
-user.on('change', () => console.log(user));
-user.on('error', () => console.log('User could not be saved.'));
-
-user.fetch();
+userForm.model.on('change', () => {
+  userForm.render();
+});
