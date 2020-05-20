@@ -1,25 +1,15 @@
 import { User } from '../models/User';
+import { View } from './View';
+import { UserProps } from '../models/User';
 
-export class UserForm {
-  parent: HTMLElement;
-  model: User;
-  cache: DocumentFragment[] = [];
-
-  constructor(parent, model) {
-    this.parent = parent;
-    this.model = model;
-    this.render();
-  }
-
+export class UserForm extends View<User, UserProps> {
   template(): string {
     return `
       <div>
-        <h1>User Form</h1>
-        <div>Name: ${this.model.get('name')}</div>
-        <div>Age: ${this.model.get('age')}</div>
-        <input id="input" />
+        <input id="input" placeholder="${this.model.get('name')}" />
         <button class="set-name">Change Name</button>
         <button class="set-age">Set Random Age</button>
+        <button class="save-model">Save</button>
       </div>
     `;
   }
@@ -28,52 +18,18 @@ export class UserForm {
     return {
       'click:.set-age': this.onSetAgeClick,
       'click:.set-name': this.onSetNameClick,
+      'click:.save-model': this.onSaveClick,
     };
   }
 
   onSetAgeClick = (): void => {
     this.model.setRandomAge();
-    this.model.trigger('change');
+  };
+  onSaveClick = (): void => {
+    this.model.save();
   };
   onSetNameClick = (): void => {
     const name = document.getElementById('input') as HTMLInputElement;
     this.model.setName(name.value);
-    this.model.trigger('change');
   };
-
-  bindEvents = (fragment: DocumentFragment): void => {
-    let eventsMap = this.eventsMap();
-    for (let entry in eventsMap) {
-      let [event, selector] = entry.split(':');
-      let callback = eventsMap[entry];
-      fragment.querySelectorAll(selector).forEach((element) => {
-        element.addEventListener(event, callback);
-      });
-    }
-  };
-
-  render(): void {
-    this.parent.innerHTML = '';
-    const templateElement: HTMLTemplateElement = document.createElement(
-      'template'
-    );
-    templateElement.innerHTML = this.template();
-
-    this.bindEvents(templateElement.content);
-
-    this.parent.append(templateElement.content);
-  }
-
-  // updateRender(): void {
-  //   const templateElement: HTMLTemplateElement = document.createElement(
-  //     'template'
-  //   );
-  //   templateElement.innerHTML = this.template();
-
-  //   this.bindEvents(templateElement.content);
-
-  //   if (this.cache['template']) {
-  //     this.parent.replaceChild(templateElement.content, this.cache[0]);
-  //   }
-  // }
 }
